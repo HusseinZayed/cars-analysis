@@ -1,59 +1,75 @@
 import streamlit as st
-import pandas as pd
-import numpy as np
-import plotly.express as px
-from sklearn.model_selection import train_test_split
-from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import Pipeline
-from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import OneHotEncoder
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_absolute_error, r2_score
 
-# =========================
-# PAGE CONFIG
-# =========================
-st.set_page_config(
-    page_title="Cars Analytics App",
-    page_icon="🚗",
-    layout="wide"
-)
+    st.markdown("Enter car information to predict price")
 
-# =========================
-# LOAD DATA
-# =========================
-@st.cache_data
+    st.markdown("---")
 
-def load_data():
-    df = pd.read_csv("cars_dataset.csv")
+    # INPUTS
 
-    # Drop unnecessary columns
-    drop_cols = ["Unnamed: 0", "vin", "lot"]
+    brand = st.selectbox(
+        "Brand",
+        sorted(df["brand"].unique())
+    )
 
-    for col in drop_cols:
-        if col in df.columns:
-            df.drop(col, axis=1, inplace=True)
+    model = st.selectbox(
+        "Model",
+        sorted(df["model"].unique())
+    )
 
-    # Handle missing values
-    df["mileage"] = df["mileage"].fillna(df["mileage"].median())
+    year = st.number_input(
+        "Year",
+        min_value=int(df["year"].min()),
+        max_value=int(df["year"].max()),
+        value=2018
+    )
 
-    # Remove duplicates
-    df = df.drop_duplicates()
+    title_status = st.selectbox(
+        "Title Status",
+        sorted(df["title_status"].unique())
+    )
 
-    return df
+    mileage = st.number_input(
+        "Mileage",
+        min_value=0,
+        value=50000
+    )
 
+    color = st.selectbox(
+        "Color",
+        sorted(df["color"].unique())
+    )
 
-df = load_data()
+    state = st.selectbox(
+        "State",
+        sorted(df["state"].unique())
+    )
 
-# =========================
-# MODEL TRAINING
-# =========================
+    country = st.selectbox(
+        "Country",
+        sorted(df["country"].unique())
+    )
 
-X = df.drop("price", axis=1)
-y = df["price"]
+    condition = st.selectbox(
+        "Condition",
+        sorted(df["condition"].unique())
+    )
 
-categorical_cols = X.select_dtypes(include="object").columns.tolist()
-numerical_cols = X.select_dtypes(exclude="object").columns.tolist()
+    if st.button("Predict Price"):
 
-numeric_transformer = Pipeline([
+        input_df = pd.DataFrame({
+            "brand": [brand],
+            "model": [model],
+            "year": [year],
+            "title_status": [title_status],
+            "mileage": [mileage],
+            "color": [color],
+            "state": [state],
+            "country": [country],
+            "condition": [condition]
+        })
+
+        predicted_price = model_pipeline.predict(input_df)[0]
+
+        st.success(f"Predicted Car Price: ${predicted_price:,.2f}")
+
         st.balloons()
